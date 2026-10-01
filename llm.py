@@ -1,13 +1,14 @@
 import json
 import openai
 import os
+from pathlib import Path
 from openai import OpenAI
 from langchain.vectorstores import Chroma
 from langchain.prompts import ChatPromptTemplate
 from dotenv import load_dotenv
 from vector import get_embedding_function
 
-with open('prompts.json', 'r', encoding='utf-8') as file:
+with Path(__file__).with_name('prompts.json').open('r', encoding='utf-8') as file:
     prompts = json.load(file)
 
 CHROMA_PATH = "chroma"
@@ -47,10 +48,5 @@ def search_and_respond(query_text):
     
     response_text = query_chatgpt(prompt)
 
-    sources = [doc.metadata.get("id", None) for doc, _score in results]
-    
-    formatted_response = f"Response: {response_text}\nSources: {sources}"
-    print(formatted_response)
-    
     return response_text
 

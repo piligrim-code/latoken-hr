@@ -2,6 +2,7 @@ import os
 import asyncio
 import logging
 import json
+from pathlib import Path
 from aiogram import Bot, Dispatcher, F, types
 from aiogram.filters import BaseFilter, StateFilter
 from aiogram.filters.command import Command
@@ -15,7 +16,7 @@ from langchain.vectorstores import Chroma
 from dotenv import load_dotenv
 from vector import get_embedding_function
 
-with open('prompts.json', 'r', encoding='utf-8') as file:
+with Path(__file__).with_name('prompts.json').open('r', encoding='utf-8') as file:
     prompts = json.load(file)
 
 CHROMA_PATH = "chroma"
@@ -35,7 +36,6 @@ TOKEN = os.getenv("BOT_TOKEN")
 logging.basicConfig(level=logging.INFO)
 
 # Объект бота
-bot = Bot(TOKEN)
 # Диспетчер
 dp = Dispatcher()
 
@@ -190,7 +190,10 @@ async def message_reply(message: types.Message, state: FSMContext):
     await message.answer(answer)
 
 async def main():
-    await dp.start_polling(bot)
+    if not TOKEN:
+        raise ValueError("BOT_TOKEN is required to start polling")
+    async with Bot(TOKEN) as bot:
+        await dp.start_polling(bot)
 
 if __name__ == "__main__":
     asyncio.run(main())
