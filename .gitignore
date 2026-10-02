@@ -6,4 +6,7 @@ __pycache__/
 .env.*
 chroma/
 scraped-data/
+reviewed-text/
+reviewed-index/
+review.json
 *.log

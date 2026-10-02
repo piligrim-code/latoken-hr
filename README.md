@@ -19,6 +19,27 @@ These checks need no credentials, model downloads, Telegram connection or
 external embedding calls. Tests use synthetic HTML and documents. The test
 requirements do NOT install or qualify the full legacy bot stack.
 
+## Reviewed snapshot index
+
+`reviewed_index.py` adds a separately tested index path with explicit per-file
+review hashes, bounded inputs, content/model-aware generations and atomic
+publication. Updates and removals replace the active snapshot only after all
+batches succeed. Unchanged input makes no embedding request.
+
+```console
+python -m pip install -r requirements-test.txt -r requirements-index.txt
+python -m pip check
+python -m pytest tests -q
+python reviewed_index.py --help
+```
+
+With the optional index dependencies installed, the suite also exercises real
+temporary Chroma and loopback embeddings HTTP. Without them those integration
+tests skip. CI installs them on Windows and Linux. Read
+[setup, review format and retention semantics](docs/reviewed-index.md) before
+indexing. Old snapshots remain on disk: removal from search is not data erasure.
+This is not yet connected to the legacy Telegram bot below.
+
 To fetch a page you are authorized to use:
 
 ```console
@@ -82,6 +103,6 @@ assign a new license to code or third-party content.
 - Move synchronous retrieval/model calls off async handlers; add timeouts,
   failure handling and rate limits at the bot boundary.
 - Test quiz-state transitions, retrieval quality and provider failures.
-- Add content-change-aware index updates/deletions: existing chunk IDs are
-  positional, not document versions. Rebuild a disposable index after edits.
+- Migrate the bot to the reviewed snapshot index. The old `vector.py` path
+  still uses positional IDs and is not the qualified update/delete path.
 - Establish retention, access control and data rights before any public use.
